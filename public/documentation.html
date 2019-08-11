@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>myFlix</title>
+    <title>myFlix Docs</title>
+    <style>
+        * {font-family: Arial;}
+        table {border-collapse: collapse;}
+        table, th, td {border: 1px solid black;}
+        p {color: #008CBA;}
+    </style>
 </head>
 
 <body>
-    <p>
-        Goal is to build the server­side component of a “movies” web application.
-        The REST API does the following:
-    </p>
+    <h1>Goal is to build the server­side component of a "movies" web application</h1>
+    <hr>
+    <h2>The REST API does the following:</h2>
+
     <ul>
         <li>Return a list of ALL movies to the user</li>
         <li>Return data (description, genre, director, image URL, whether it’s featured or not) 
-            about a single movie by title to the user</li>
+            about a single movie by title to the user
+        </li>
         <li>Return data about a genre (description) by name/title (e.g., “Thriller”)</li>
         <li>Return data about a director (bio, birth year, death year) by name</li>
         <li>Allow new users to register</li>
@@ -24,5 +31,142 @@
         <li>Allow users to remove a movie from their list of favorites</li>
         <li>Allow existing users to deregister</li>
     </ul>
+
+    <h3>
+        Please check the next table as a reference of what
+        to expect for the "body" data in each request and response
+    </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Request</th>
+                <th>URL</th>
+                <th>HTTP Method</th>
+                <th>Request body data format</th>
+                <th>Response body data format</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>Get a list of movies</td>
+                <td>/movies</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about all the movies</td>
+            </tr>
+            <tr>
+                <td>Get data about a single movie by title</td>
+                <td>/movies/[title]</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about a single movie, 
+                    containing a title, description, genre, director, image URL:
+                    <p>
+                        {<br>
+                        &nbsp;&nbsp; title: 'Fight Club',<br>
+                        &nbsp;&nbsp; description: 'Fight Club is a 1999 film based on the 1996 novel 
+                        of the same name by Chuck Palahniuk',<br>
+                        &nbsp;&nbsp; genre: 'Drama',<br>
+                        &nbsp;&nbsp; directed: 'David Fincher',<br>
+                        &nbsp;&nbsp; imageURL: '#'<br>
+                        }
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Get data about a genre by title</td>
+                <td>/movies/[title]/genre</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A text message with the genre of a movie title</td>
+            </tr>
+            <tr>
+                <td>Get data about a director by name</td>
+                <td>/directed/[name]</td>
+                <td>GET</td>
+                <td>None</td>
+                <td>A JSON object holding data about a director or directors
+                    (includes bio, birth year, death year)
+                </td>
+            </tr>
+            <tr>
+                <td>Allow new users to register</td>
+                <td>/users</td>
+                <td>POST</td>
+                <td>A JSON object holding data about the user to add. Example:
+                    <p>
+                        {<br>
+                        &nbsp;&nbsp; username: 'JohnDoe',<br>
+                        &nbsp;&nbsp; email: 'johndoe@email.com',<br>
+                        &nbsp;&nbsp; password: 'swordfish',<br>
+                        &nbsp;&nbsp; dob: '01/01/2001',<br>
+                        &nbsp;&nbsp; favorites: []<br>
+                        }
+                    </p>                   
+                </td>
+                <td>A JSON object holding data about the user that was added
+                    (includes id). Example:
+                    <p>
+                        {<br>
+                        &nbsp;&nbsp; id: 1,<br>
+                        &nbsp;&nbsp; username: 'JohnDoe',<br>
+                        &nbsp;&nbsp; email: 'johndoe@email.com',<br>
+                        &nbsp;&nbsp; password: 'swordfish',<br>
+                        &nbsp;&nbsp; dob: '01/01/2001',<br>
+                        &nbsp;&nbsp; favorites: []<br>
+                        } 
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Allow users to update their info</td>
+                <td>/users/[id]/[username or email, or password, or dob]</td>
+                <td>PUT</td>
+                <td>None</td>
+                <td>A text message indicating whether the user's 
+                    information was successfully updated
+                </td>
+            </tr>
+            <tr>
+                <td>Allow users to add a movie to their list of favorites</td>
+                <td>/users/[username]/favorites</td>
+                <td>POST</td>
+                <td>A JSON object holding data about the user</td>
+                <td>A JSON object holding data about the movie that was added to
+                    user's favorites:
+                    <p>
+                        {<br>
+                        &nbsp;&nbsp; id: 1,<br>
+                        &nbsp;&nbsp; username: 'JohnDoe',<br>
+                        &nbsp;&nbsp; email: 'johndoe@email.com',<br>
+                        &nbsp;&nbsp; password: 'swordfish',<br>
+                        &nbsp;&nbsp; dob: '01/01/2001',<br>
+                        &nbsp;&nbsp; favorites: ['Fight Club']<br>
+                        } 
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>Allow users to remove a movie from their list of favorites</td>
+                <td>/users/[username]/favorites</td>
+                <td>DELETE</td>
+                <td>None</td>
+                <td>A text message indicating whether the movie was successfully 
+                    removed from favorites list
+                </td>
+            </tr>
+            <tr>
+                <td>Allow existing users to deregister</td>
+                <td>/users/[id]</td>
+                <td>DELETE</td>
+                <td>None</td>
+                <td>A text message indicating whether the user was successfully 
+                    deregistered
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
