@@ -56,11 +56,12 @@ let myMovies = [{
 ]
 
 let users = [{
+    id: '1',
     username: 'JohnDoe',
     email: 'johndoe@email.com',
     password: 'swordfish',
     dob: '01/01/2001',
-    favorites: []
+    favorites: ['Fight Club', 'La Haine']
 }]
 
 //morgan middleware library is used to log all requests
@@ -126,14 +127,22 @@ app.put('/users/:id/:username', function (req, res) {
 
 // allow users to add a movie to their list of favorites
 app.post('/users/:username/:favorites', function (req, res) {
-    let newFav = req.body;
+    
+    let user = users.find(function (user) {
+        return user.username === req.params.username
+        });
 
-    if (!newFav.favorites) {
-        const message = 'Title is missing';
-        res.status(400).send(message);
+    let movie = myMovies.find(function (movie) {
+        return movie.title === req.params.favorites
+    });
+
+    if (user && movie) {
+        user.favorites = [...new Set([...user.favorites, req.params.favorites])];
+        res.status(201).send(user);
+    } else if (!movie) {
+        res.status(404).send('We are not able to find the movie')
     } else {
-        users.favorites.push(newFav);
-        res.status(201).send(newFav);
+        res.status(404).send('We are not able to find you in the system')  
     }
 });
 
