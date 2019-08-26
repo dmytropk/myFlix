@@ -58,7 +58,7 @@
             </tr>
             <tr>
                 <td>Get data about a single movie by title</td>
-                <td>/movies/[title]</td>
+                <td>/movies/[Title]</td>
                 <td>GET</td>
                 <td>None</td>
                 <td>A JSON object holding data about a single movie, 
@@ -77,14 +77,14 @@
             </tr>
             <tr>
                 <td>Get data about a genre by title</td>
-                <td>/movies/[title]/genre</td>
+                <td>/movies/[Title]/genre</td>
                 <td>GET</td>
                 <td>None</td>
                 <td>A text message with the genre of a movie title</td>
             </tr>
             <tr>
                 <td>Get data about a director by name</td>
-                <td>/directed/[name]</td>
+                <td>/director/[Name]</td>
                 <td>GET</td>
                 <td>None</td>
                 <td>A JSON object holding data about a director or directors
@@ -122,19 +122,17 @@
             </tr>
             <tr>
                 <td>Allow users to update their info</td>
-                <td>/users/[id]/[username or email, or password, or dob]</td>
+                <td>/users/[Username]</td>
                 <td>PUT</td>
-                <td>None</td>
-                <td>A text message indicating whether the user's 
-                    information was successfully updated
-                </td>
+                <td>A JSON object holding data about the user to update</td>
+                <td>A JSON object holding data about the updated info</td>
             </tr>
             <tr>
                 <td>Allow users to add a movie to their list of favorites</td>
-                <td>/users/[username]/favorites</td>
+                <td>/users/[Username]/favorites/[MovieID]</td>
                 <td>POST</td>
-                <td>A JSON object holding data about the user</td>
-                <td>A JSON object holding data about the movie that was added to
+                <td>A JSON object holding movie id</td>
+                <td>A JSON object holding data about the user and the movie id added to
                     user's favorites:
                     <p>
                         {<br>
@@ -143,23 +141,22 @@
                         &nbsp;&nbsp; email: 'johndoe@email.com',<br>
                         &nbsp;&nbsp; password: 'swordfish',<br>
                         &nbsp;&nbsp; dob: '01/01/2001',<br>
-                        &nbsp;&nbsp; favorites: ['Fight Club']<br>
+                        &nbsp;&nbsp; favorites: ['5d5f7c49c3c610b173ed93c4']<br>
                         } 
                     </p>
                 </td>
             </tr>
             <tr>
                 <td>Allow users to remove a movie from their list of favorites</td>
-                <td>/users/[username]/favorites</td>
+                <td>/users/[Username]/favorites/[MovieID]</td>
                 <td>DELETE</td>
-                <td>None</td>
-                <td>A text message indicating whether the movie was successfully 
-                    removed from favorites list
+                <td>A JSON object holding movie id</td>
+                <td>A JSON object holding data about the user with updated favorites
                 </td>
             </tr>
             <tr>
                 <td>Allow existing users to deregister</td>
-                <td>/users/[id]</td>
+                <td>/users/[Username]</td>
                 <td>DELETE</td>
                 <td>None</td>
                 <td>A text message indicating whether the user was successfully 
