@@ -6,16 +6,18 @@ const express = require('express');
     morgan = require('morgan');
     bodyParser = require('body-parser');
     // uuid = require('uuid');
+    passport = require ('passport');
+    require('./passport');
 
 const app = express();
 app.use(bodyParser.json());
-//morgan middleware library is used to log all requests
-app.use(morgan('common'));
+var auth = require('./auth')(app);
+app.use(morgan('common')); /* morgan middleware to log all requests */
 
 mongoose.connect('mongodb://localhost:27017/MyFlixDB', {useNewUrlParser: true});
 
 // request to return a JSON object containing data about all the movies
-app.get('/movies', function(req, res) {
+app.get('/movies', passport.authenticate('jwt', {session: false}), function(req, res) {
     Movies.find()
     .then(function(movies) {
         res.status(201).json(movies)
@@ -27,7 +29,7 @@ app.get('/movies', function(req, res) {
 });
 
 // get data about a single movie by title
-app.get('/movies/:Title', function (req, res) {
+app.get('/movies/:Title', passport.authenticate('jwt', {session: false}), function (req, res) {
     Movies.findOne({Title : req.params.Title})
     .then(function(movies) {
         res.json(movies)
@@ -39,7 +41,7 @@ app.get('/movies/:Title', function (req, res) {
 });
 
 // get data about a genre by title
-app.get('/movies/:Title/genre', function (req, res) {
+app.get('/movies/:Title/genre', passport.authenticate('jwt', {session: false}), function (req, res) {
     Movies.findOne({Title : req.params.Title})
     .then(function(movie) {
         if (movie) {
@@ -54,9 +56,8 @@ app.get('/movies/:Title/genre', function (req, res) {
     });
 });
     
-
 // get data about a director by name
-app.get('/movies/director/:Name', function (req, res) {
+app.get('/movies/director/:Name', passport.authenticate('jwt', {session: false}), function (req, res) {
     Movies.findOne({"Director.Name" : req.params.Name})
     .then(function(movies) {
         res.json(movies.Director)
@@ -94,9 +95,8 @@ app.post('/users', function (req, res) {
     });
 });
 
-
 // allow users to update their info
-app.put('/users/:Username', function (req, res) {
+app.put('/users/:Username', passport.authenticate('jwt', {session: false}), function (req, res) {
     Users.findOneAndUpdate({Username : req.params.Username}, {$set :
         {
             Username: req.body.Username,
@@ -116,7 +116,7 @@ app.put('/users/:Username', function (req, res) {
 });
 
 // get data about user
-app.get('/users/:Username', function(req, res) {
+app.get('/users/:Username', passport.authenticate('jwt', {session: false}), function(req, res) {
     Users.findOne({Username : req.params.Username})
     .then(function(user){
         res.json(user)
@@ -128,7 +128,7 @@ app.get('/users/:Username', function(req, res) {
 });
 
 // allow users to add a movie to their list of favorites
-app.post('/users/:Username/favorites/:MovieID', function (req, res) {
+app.post('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
     Users.findOneAndUpdate({Username : req.params.Username}, {
         $push : {Favorites : req.params.MovieID}
     },
@@ -144,7 +144,7 @@ app.post('/users/:Username/favorites/:MovieID', function (req, res) {
 });
 
 // allow users to remove a movie from their list of favorites
-app.delete('/users/:Username/favorites/:MovieID', function (req, res) {
+app.delete('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
     Users.findOneAndUpdate ({Username : req.params.Username}, {
         $pull : {Favorites : req.params.MovieID}
     },
@@ -160,7 +160,7 @@ app.delete('/users/:Username/favorites/:MovieID', function (req, res) {
 });
 
 // allow existing users to deregister
-app.delete('/users/:Username', function(req, res) {
+app.delete('/users/:Username', passport.authenticate('jwt', {session: false}), function(req, res) {
     Users.findOneAndRemove ({Username : req.params.Username})
     .then(function(user) {
         if (!user){res.status(400).send("Your account was not found!");
