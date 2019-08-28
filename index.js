@@ -1,17 +1,20 @@
-const mongoose = require('mongoose');
-const Models = require('./models.js');
-const Movies = Models.Movie;
-const Users = Models.User;
 const express = require('express');
-    morgan = require('morgan');
-    bodyParser = require('body-parser');
-    // uuid = require('uuid');
-    passport = require ('passport');
-    require('./passport');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const validator = require('express-validator');
+const passport = require ('passport');
+const Models = require('./models.js');
+require('./passport');
 
 const app = express();
+const Movies = Models.Movie;
+const Users = Models.User;
 app.use(bodyParser.json());
 var auth = require('./auth')(app);
+app.use(cors());
+app.use(validator());
 app.use(morgan('common')); /* morgan middleware to log all requests */
 
 mongoose.connect('mongodb://localhost:27017/MyFlixDB', {useNewUrlParser: true});
@@ -70,6 +73,20 @@ app.get('/movies/director/:Name', passport.authenticate('jwt', {session: false})
 
 // allow new users to register
 app.post('/users', function (req, res) {
+    // request validation logic
+    req.checkBody('Username', 'Username is required').notEmpty();
+    req.checkBody('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric();
+    req.checkBody('Password', 'Password is required').notEmpty();
+    req.checkBody('Email', 'Email is required').notEmpty();
+    req.checkBody('Email', 'Email does not appear to be valid').isEmail();
+
+    // errors checking
+    var errors = req.validationErrors();
+    if (errors) {
+        return res.status(422).json({errors: errors});
+    }
+
+    var hashedPassword = Users.hashPassword(req.body.Password);
     Users.findOne({Username : req.body.Username})
     .then(function(user) {
         if (user) {
@@ -77,7 +94,7 @@ app.post('/users', function (req, res) {
         } else {
             Users.create({
                 Username: req.body.Username,
-                Password: req.body.Password,
+                Password: hashedPassword,
                 Email: req.body.Email,
                 DOB: req.body.DOB
             })
@@ -87,7 +104,7 @@ app.post('/users', function (req, res) {
             .catch(function(err) {
                 console.error(err);
                 res.status(500).send("Error: " + err);
-            })
+            });
         }
     }).catch(function(err) {
         console.error(err);
@@ -97,6 +114,17 @@ app.post('/users', function (req, res) {
 
 // allow users to update their info
 app.put('/users/:Username', passport.authenticate('jwt', {session: false}), function (req, res) {
+    req.checkBody('Username', 'Username is required').notEmpty();
+    req.checkBody('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric();
+    req.checkBody('Password', 'Password is required').notEmpty();
+    req.checkBody('Email', 'Email is required').notEmpty();
+    req.checkBody('Email', 'Email does not appear to be valid').isEmail();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        return res.status(422).json({errors: errors});
+    }
+
     Users.findOneAndUpdate({Username : req.params.Username}, {$set :
         {
             Username: req.body.Username,
@@ -128,7 +156,7 @@ app.get('/users/:Username', passport.authenticate('jwt', {session: false}), func
 });
 
 // allow users to add a movie to their list of favorites
-app.post('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
+app.post('/users/:Username/Favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
     Users.findOneAndUpdate({Username : req.params.Username}, {
         $push : {Favorites : req.params.MovieID}
     },
@@ -144,7 +172,7 @@ app.post('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', {se
 });
 
 // allow users to remove a movie from their list of favorites
-app.delete('/users/:Username/favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
+app.delete('/users/:Username/Favorites/:MovieID', passport.authenticate('jwt', {session: false}), function (req, res) {
     Users.findOneAndUpdate ({Username : req.params.Username}, {
         $pull : {Favorites : req.params.MovieID}
     },
