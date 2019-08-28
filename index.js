@@ -217,4 +217,8 @@ app.use(function (err, req, res, next) {
 });
 
 // requests listenening
-app.listen(8080);
+// app.listen(8080);
+var port = process.env.PORT || 3000;
+app.listen(port, "0.0.0.0", function() {
+console.log("Listening on Port 3000");
+});
